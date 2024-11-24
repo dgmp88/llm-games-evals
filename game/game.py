@@ -30,6 +30,7 @@ class Game:
     def play(self, max_moves: float | None = 75) -> Outcome:
         game_start_time = time.perf_counter()
         self.outcome = self._play(max_moves)
+        print()  # to flush the dots
         game_end_time = time.perf_counter()
         self.game_time = game_end_time - game_start_time
         return self.outcome
@@ -40,7 +41,6 @@ class Game:
         move_idx: float = 0  # Half move counter
 
         while not board.is_game_over():
-
             dots = "." * int(move_idx * 2)
             print(dots, end="", flush=True)
             if max_moves is not None and move_idx >= max_moves:

@@ -1,26 +1,25 @@
 from game.system_prompt import SYSTEM_PROMPT
 from game.types import LLMMessage, LostByInvalidMoves, Player, LLMModel
 from game.util import get_board_emoji, pgn_from_board
-
+from litellm import completion
 
 import chess
-from litellm import completion
 
 
 class LLMPlayer(Player):
     def __init__(
         self,
         name: LLMModel,
-        n_attempts: int = 3,
+        n_attempts: int = 1,
         debug: bool = False,
-        insert_board: bool = False,
+        board_provided: bool = False,
     ):
         self.name = name
         self.n_attempts = n_attempts
         self.debug = debug
         self.total_failed_attempts = 0
         self.failed_attempts_per_move: list[int] = []
-        self.insert_board = insert_board
+        self.board_provided = board_provided
 
     def get_move(self, board: chess.Board) -> chess.Move:
         messages = self.get_prompt_messages(board)
@@ -33,9 +32,11 @@ class LLMPlayer(Player):
                 self.failed_attempts_per_move.append(i)
                 self.total_failed_attempts += i
                 return move
-            except chess.IllegalMoveError:
-                pass
-            except chess.InvalidMoveError:
+            except (
+                chess.IllegalMoveError,
+                chess.InvalidMoveError,
+                chess.AmbiguousMoveError,
+            ):
                 pass
 
         n_moves = len(board.move_stack)
@@ -56,8 +57,6 @@ class LLMPlayer(Player):
         )
         message = response.choices[0].message.content  # type: ignore
 
-        # print(response.usage) # currently nothing is cached as it's too few tokens
-
         if not isinstance(message, str):
             raise ValueError("LLM response is not a string")
 
@@ -70,7 +69,7 @@ class LLMPlayer(Player):
     def get_system_prompt(self, board: chess.Board) -> LLMMessage:
 
         board_str = ""
-        if self.insert_board:
+        if self.board_provided:
             emoji_board = get_board_emoji(board)
             board_str = "This is the current board state:\n\n" + emoji_board + "\n\n"
 
@@ -83,9 +82,6 @@ class LLMPlayer(Player):
 
     def get_user_prompt(self, board: chess.Board) -> LLMMessage:
         moves = pgn_from_board(board)
-
-        if len(moves) == 0:
-            moves = "1. *"
 
         return {"content": moves, "role": "user"}
 

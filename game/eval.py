@@ -2,8 +2,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import math
 import pickle
+import pandas as pd
 
 import chess
+
 from game import env
 from game.game import Game
 from game.players.llm_player import LLMPlayer
@@ -21,6 +23,7 @@ class Result:
     llm: str
     stockfish_elo: int
     timestamp: datetime = field(default_factory=datetime.now)
+    board_provided: bool = field(default=False)
 
     def save(self):
         now_str = self.timestamp.strftime("%Y-%m-%d_%H-%M-%S")
@@ -34,38 +37,37 @@ class Result:
             pickle.dump(self, f)
 
 
-def evaluate(model: LLMModel):
-    for elo in [800, 1000, 1500, 2000, 2500]:
-        print(f"Evaluating model {model} against Stockfish {elo}")
-        llm = LLMPlayer(model)
+def evaluate(model: LLMModel, debug: bool = False, board_provided: bool = False):
 
-        sf = StockfishPlayer(elo)
-        game = Game(llm, sf, white=llm)
+    print("Board provided: ", board_provided)
 
-        outcome = game.play()
+    for i in range(10):
+        for elo in [1500]:
+            print(f"Evaluating model {model} against Stockfish {elo}")
+            llm = LLMPlayer(model, debug=debug, board_provided=board_provided)
 
-        result = Result(
-            outcome=outcome,
-            time_taken_s=game.game_time,
-            moves=game.board.move_stack,
-            stockfish_elo=elo,
-            white=game.white.name,
-            black=game.black.name,
-            llm=llm.name,
-        )
+            sf = StockfishPlayer(elo)
+            game = Game(llm, sf, white=llm)
 
-        result.save()
+            outcome = game.play()
 
-        if outcome.winner_name != llm.name:
-            print(f"Stopped, didn't win against Stockfish {elo}")
+            result = Result(
+                outcome=outcome,
+                time_taken_s=game.game_time,
+                moves=game.board.move_stack,
+                stockfish_elo=elo,
+                white=game.white.name,
+                black=game.black.name,
+                llm=llm.name,
+                board_provided=board_provided,
+            )
 
-            return
+            result.save()
 
 
-def models():
+def models(board_provided: bool = False):
     models: list[LLMModel] = [
         "gpt-4o-mini-2024-07-18",
-        "gpt-4o-2024-08-06",
         "gpt-4o-2024-11-20",
         "claude-3-5-haiku-20241022",
         "claude-3-5-sonnet-20241022",
@@ -74,11 +76,10 @@ def models():
     ]
 
     for model in models:
-        evaluate(model)
+        evaluate(model, board_provided=board_provided)
 
 
-def print_results():
-    import pandas as pd
+def get_results_df() -> pd.DataFrame:
 
     folder = env.RESULTS_DIR
     files = folder.glob("*.pickle")
@@ -92,15 +93,17 @@ def print_results():
             results.append(result)
 
     results.sort(key=lambda r: r.timestamp)
+    df = pd.DataFrame(results).assign(
+        n_moves=lambda x: x.moves.apply(lambda m: math.floor(len(m) / 2)),
+        winner=lambda x: x.outcome.apply(lambda o: o["winner_name"]),
+        reason=lambda x: x.outcome.apply(lambda o: o["termination"]),
+    )
 
-    # for result in results:
-    #     print(f"{result.llm} vs Stockfish {result.stockfish_elo}")
-    #     print(f"Winner: {result.outcome.winner_name} in {len(result.moves)} moves")
+    return df
 
-    df = pd.DataFrame(results)
-    df["n_moves"] = df.moves.apply(lambda m: math.floor(len(m) / 2))
-    df["winner"] = df.outcome.apply(lambda o: o["winner_name"])
-    df["reason"] = df.outcome.apply(lambda o: o["termination"])
+
+def print_results():
+    df = get_results_df()
 
     print(
         df[
@@ -110,11 +113,17 @@ def print_results():
                 "white",
                 "black",
                 "n_moves",
+                "board_provided",
                 "time_taken_s",
                 "timestamp",
             ]
         ]
     )
+
+    print(df.groupby("llm").n_moves.agg(["mean", "min", "max", "std"]))
+
+    print(df.groupby("stockfish_elo").n_moves.agg(["mean", "median", "max"]))
+    print(df.groupby("board_provided").n_moves.agg(["mean", "median", "max"]))
 
 
 if __name__ == "__main__":

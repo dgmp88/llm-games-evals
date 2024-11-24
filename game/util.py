@@ -27,7 +27,9 @@ def get_board_emoji(board: chess.Board):
     lines = board_str.split("\n")
     lines = [f"{8-i}   {lines[i]}   {8-i}" for i in range(8)]
 
-    lines = ["    a b c d e f g h    ", ""] + lines + ["", "    a b c d e f g h    "]
+    lines = (
+        ["", "    a b c d e f g h    ", ""] + lines + ["", "    a b c d e f g h    "]
+    )
 
     board_str = "\n".join(lines)
 
@@ -38,6 +40,13 @@ def pgn_from_board(board: chess.Board) -> str:
     pgn_board = PGNGame.from_board(board)
 
     # Strip the headers
-    moves = str(pgn_board).split("\n")[-1]
+    pgn = str(pgn_board).split("\n")[-1]
 
-    return moves
+    n_moves = len(board.move_stack)
+
+    if n_moves % 2 == 0:
+        # Put a number and dot before the * to help the LLM
+        index = n_moves // 2 + 1
+        pgn = pgn.replace("*", f"{index}. *")
+
+    return pgn
