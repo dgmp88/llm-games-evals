@@ -1,6 +1,6 @@
 from game.system_prompt import SYSTEM_PROMPT
 from game.types import LLMMessage, LostByInvalidMoves, Player, LLMModel
-from game.util import display_board_emoji, pgn_from_board
+from game.util import get_board_emoji, pgn_from_board
 
 
 import chess
@@ -17,7 +17,6 @@ class LLMPlayer(Player):
 
     def get_move(self, board: chess.Board) -> chess.Move:
         messages = self.get_prompt_messages(board)
-
         response: str = ""
 
         for i in range(self.n_attempts):
@@ -35,7 +34,8 @@ class LLMPlayer(Player):
         n_moves = len(board.move_stack)
 
         if self.debug:
-            display_board_emoji(board)
+            emj = get_board_emoji(board)
+            print(emj)
             print("Attempted: ", response)
 
             breakpoint()
@@ -57,19 +57,24 @@ class LLMPlayer(Player):
         return message
 
     def get_prompt_messages(self, board: chess.Board) -> list[LLMMessage]:
-        messages = [self.get_system_prompt(), self.get_user_prompt(board)]
-
+        messages = [self.get_system_prompt(board), self.get_user_prompt(board)]
         return messages
 
-    def get_system_prompt(self) -> LLMMessage:
+    def get_system_prompt(self, board: chess.Board) -> LLMMessage:
+        emoji_board = get_board_emoji(board)
+        system_prompt = SYSTEM_PROMPT.format(board=emoji_board)
 
         return {
-            "content": SYSTEM_PROMPT,
+            "content": system_prompt,
             "role": "system",
         }
 
     def get_user_prompt(self, board: chess.Board) -> LLMMessage:
         moves = pgn_from_board(board)
+
+        if len(moves) == 0:
+            moves = "1. *"
+
         return {"content": moves, "role": "user"}
 
 

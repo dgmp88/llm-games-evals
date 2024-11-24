@@ -18,11 +18,20 @@ PIECE_TO_EMOJI = {
 }
 
 
-def display_board_emoji(board: chess.Board):
+def get_board_emoji(board: chess.Board):
     board_str = str(board)
     for piece in PIECE_TO_EMOJI:
         board_str = board_str.replace(piece, PIECE_TO_EMOJI[piece])
-    print(board_str)
+
+    # Add in numbers and letters for the board
+    lines = board_str.split("\n")
+    lines = [f"{8-i}   {lines[i]}   {8-i}" for i in range(8)]
+
+    lines = ["    a b c d e f g h    ", ""] + lines + ["", "    a b c d e f g h    "]
+
+    board_str = "\n".join(lines)
+
+    return board_str
 
 
 def pgn_from_board(board: chess.Board) -> str:

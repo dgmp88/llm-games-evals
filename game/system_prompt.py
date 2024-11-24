@@ -8,10 +8,20 @@ Assistant: Nh4
 ----
 
 Example B:
+User: 1. *
+Assistant: e4
+
+----
+
+Example C:
 User: 1. d4 c5 2. c3 cxd4 3. g3 d5 *
 Assistant: Qa4+
 
 ----
 
 Only fill in the * with your move. Do not include move numbers or previous moves in your response.
+
+Here is the current board state:
+
+{board}
 """

@@ -5,6 +5,7 @@ import chess
 import chess.engine
 
 from game.types import LostByInvalidMoves, Player, Outcome
+from game.util import get_board_emoji
 
 
 class Game:
@@ -39,7 +40,7 @@ class Game:
         move_idx: float = 0  # Half move counter
 
         while not board.is_game_over():
-            print(".", end="", flush=True)
+            print(".", end="")
             if max_moves is not None and move_idx >= max_moves:
                 return Outcome(
                     termination="too_many_moves",
@@ -97,3 +98,10 @@ class Game:
         print(
             f"Average move time: {avg_move_time:.2f} seconds over {len(self.move_times) / 2} moves"
         )
+
+
+if __name__ == "__main__":
+    board = chess.Board()
+    print(board)
+    emj = get_board_emoji(board)
+    print(emj)
