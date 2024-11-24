@@ -3,6 +3,7 @@ from game.types import LLMMessage, LostByInvalidMoves, Player, LLMModel
 from game.util import get_board_emoji, pgn_from_board
 from litellm import completion
 
+
 import chess
 
 
@@ -23,6 +24,7 @@ class LLMPlayer(Player):
 
     def get_move(self, board: chess.Board) -> chess.Move:
         messages = self.get_prompt_messages(board)
+
         response: str = ""
 
         for i in range(self.n_attempts):
@@ -44,26 +46,26 @@ class LLMPlayer(Player):
         if self.debug:
             emj = get_board_emoji(board)
             print(emj)
-            print("Attempted: ", response)
+            print(f"Attempted: '{response}'")
 
             breakpoint()
 
         raise LostByInvalidMoves(f"Failed to get a valid move after {n_moves} moves")
 
     def completion(self, messages: list[LLMMessage]) -> str:
-        response = completion(
-            model=self.name,
-            messages=messages,
-        )
+        response = completion(model=self.name, messages=messages, max_tokens=10)
         message = response.choices[0].message.content  # type: ignore
 
         if not isinstance(message, str):
             raise ValueError("LLM response is not a string")
 
+        message = message.strip()
+        message = message.split(" ")[0]
         return message
 
     def get_prompt_messages(self, board: chess.Board) -> list[LLMMessage]:
         messages = [self.get_system_prompt(board), self.get_user_prompt(board)]
+        # messages = [self.get_system_prompt(board)]
         return messages
 
     def get_system_prompt(self, board: chess.Board) -> LLMMessage:
@@ -75,6 +77,9 @@ class LLMPlayer(Player):
 
         system_prompt = SYSTEM_PROMPT.format(board=board_str)
 
+        # Only works with openai models
+        # moves = pgn_from_board(board)
+        # system_prompt += "\n" + moves[:-1]
         return {
             "content": system_prompt,
             "role": "system",

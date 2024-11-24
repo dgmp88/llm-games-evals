@@ -5,9 +5,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PARENT_DIR = Path(__file__).parent.parent
 RESULTS_DIR = PARENT_DIR / "results"
 
-print(PARENT_DIR)
-print(RESULTS_DIR)
-
 assert RESULTS_DIR.exists(), f"Results dir {RESULTS_DIR} does not exist"
 
 ENV_FILE = PARENT_DIR / ".env"
@@ -32,6 +29,7 @@ class Env(BaseSettings):
     OPENAI_API_KEY: str = Field(description="OpenAI API key")
     ANTHROPIC_API_KEY: str = Field(description="Anthropic API key")
     GEMINI_API_KEY: str = Field(description="Gemini API key")
+    TOGETHERAI_API_KEY: str = Field(description="TogetherAI API key")
 
 
 env = Env()

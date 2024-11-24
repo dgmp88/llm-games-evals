@@ -27,8 +27,10 @@ class Result:
 
     def save(self):
         now_str = self.timestamp.strftime("%Y-%m-%d_%H-%M-%S")
+
+        llm_name = self.llm.replace("/", "-")
         filename = (
-            f"result_{self.llm}_vs_stockfish_{self.stockfish_elo}_{now_str}.pickle"
+            f"result_{llm_name}_vs_stockfish_{self.stockfish_elo}_{now_str}.pickle"
         )
 
         file = env.RESULTS_DIR / filename
@@ -67,12 +69,18 @@ def evaluate(model: LLMModel, debug: bool = False, board_provided: bool = False)
 
 def models(board_provided: bool = False):
     models: list[LLMModel] = [
-        "gpt-4o-mini-2024-07-18",
-        "gpt-4o-2024-11-20",
-        "claude-3-5-haiku-20241022",
-        "claude-3-5-sonnet-20241022",
-        # "gemini-1.5-flash",
-        # "gemini-1.5-pro",
+        # "gpt-4o-mini-2024-07-18",
+        # "gpt-4o-2024-11-20",
+        # "gpt-3.5-turbo-0125",
+        "gpt-3.5-turbo-instruct",
+        # "claude-3-5-haiku-20241022",
+        # "claude-3-5-sonnet-20241022",
+        # "gemini/gemini-1.5-flash",
+        # "gemini/gemini-1.5-pro",
+        # "ollama/llama3.1:8b",
+        # "together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        # "together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+        # "together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
     ]
 
     for model in models:

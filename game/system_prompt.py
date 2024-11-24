@@ -24,7 +24,7 @@ Only fill in the * with your move. Do not include move numbers or previous moves
 """
 
 
-SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move.
+V2_SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move.
 
 - Any illegal move will result in immediate disqualification.
 - Respond with a single move in Standard Algebraic Notation (SAN)
@@ -69,4 +69,23 @@ Response: Qa4+
 ----
 
 {board}
+"""
+
+SYSTEM_PROMPT = """[Event "FIDE World Championship Match 2024"]
+[Site "Los Angeles, USA"]
+[Date "2024.12.01"]
+[Round "5"]
+[White "Carlsen, Magnus"]
+[Black "Nepomniachtchi, Ian"]
+[Result "1-0"]
+[WhiteElo "2885"]
+[WhiteTitle "GM"]
+[WhiteFideId "1503014"]
+[BlackElo "2812"]
+[BlackTitle "GM"]
+[BlackFideId "4168119"]
+[TimeControl "40/7200:20/3600:900+30"]
+[UTCDate "2024.11.27"]
+[UTCTime "09:01:25"]
+[Variant "Standard"]
 """

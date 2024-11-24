@@ -17,8 +17,14 @@ LLMModel = Literal[
     "claude-3-5-sonnet-20241022",
     "claude-3-5-haiku-20241022",
     # Google
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini/gemini-1.5-flash",
+    "gemini/gemini-1.5-pro",
+    # Ollama
+    "ollama/llama3.1:8b",
+    # Together
+    "together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    "together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+    "together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
 ]
 
 
