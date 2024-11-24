@@ -1,5 +1,5 @@
 from game.system_prompt import SYSTEM_PROMPT
-from game.types import LLMMessage, LostByInvalidMoves, Player
+from game.types import LLMMessage, LostByInvalidMoves, Player, LLMModel
 from game.util import display_board_emoji, pgn_from_board
 
 
@@ -8,7 +8,7 @@ from litellm import completion
 
 
 class LLMPlayer(Player):
-    def __init__(self, name: LLMModel, n_attempts: int = 3, debug=False):
+    def __init__(self, name: LLMModel, n_attempts: int = 3, debug: bool = False):
         self.name = name
         self.n_attempts = n_attempts
         self.debug = debug
@@ -49,6 +49,8 @@ class LLMPlayer(Player):
         )
         message = response.choices[0].message.content  # type: ignore
 
+        # print(response.usage) # currently nothing is cached as it's too few tokens
+
         if not isinstance(message, str):
             raise ValueError("LLM response is not a string")
 
@@ -69,3 +71,11 @@ class LLMPlayer(Player):
     def get_user_prompt(self, board: chess.Board) -> LLMMessage:
         moves = pgn_from_board(board)
         return {"content": moves, "role": "user"}
+
+
+if __name__ == "__main__":
+    from litellm.utils import supports_prompt_caching
+
+    supports_pc: bool = supports_prompt_caching(model="gpt-4o-2024-08-06")
+
+    print(supports_pc)

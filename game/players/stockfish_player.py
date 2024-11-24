@@ -5,7 +5,7 @@ import chess
 from stockfish import Stockfish
 
 
-from env import env
+from game.env import env
 from game.types import Player
 
 

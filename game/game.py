@@ -1,48 +1,37 @@
-from dataclasses import dataclass
 import random
 import time
-from typing import Literal, TypedDict
 
 import chess
 import chess.engine
 
-from game.types import LostByInvalidMoves, Player
-
-
-@dataclass
-class Outcome:
-    termination: Literal[
-        "invalid_moves", "checkmate", "stalemate", "too_many_moves"
-    ]  # chess.Termination doesn't include invalid_moves, so make our own
-    winner_name: str | None
-
-    def __str__(self):
-        return (
-            f"Outcome(termination={self.termination}, winner_name={self.winner_name})"
-        )
+from game.types import LostByInvalidMoves, Player, Outcome
 
 
 class Game:
-    outcome: Outcome | None
 
-    def __init__(self, p1: Player, p2: Player):
+    def __init__(self, p1: Player, p2: Player, white: Player | None = None):
         self.p1 = p1
         self.p2 = p2
 
-        self.p1_white = random.choice([True, False])
+        if white is None:
+            p1_white = random.choice([True, False])
 
-        self.white = p1 if self.p1_white else p2
-        self.black = p2 if self.p1_white else p1
+            self.white = p1 if p1_white else p2
+            self.black = p2 if p1_white else p1
+        else:
+            self.white = white
+            self.black = p2 if white == p1 else p1
 
         self.board = chess.Board()
         self.outcome = None
         self.move_times: list[float] = []
 
-    def play(self, max_moves: float | None = 75):
+    def play(self, max_moves: float | None = 75) -> Outcome:
         game_start_time = time.perf_counter()
         self.outcome = self._play(max_moves)
         game_end_time = time.perf_counter()
         self.game_time = game_end_time - game_start_time
+        return self.outcome
 
     def _play(self, max_moves: float | None = 75) -> Outcome:
         board = self.board
@@ -50,6 +39,7 @@ class Game:
         move_idx: float = 0  # Half move counter
 
         while not board.is_game_over():
+            print(".", end="", flush=True)
             if max_moves is not None and move_idx >= max_moves:
                 return Outcome(
                     termination="too_many_moves",
