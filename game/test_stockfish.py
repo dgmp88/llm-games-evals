@@ -8,15 +8,17 @@ class TestGame(TestCase):
 
     def test_one_game(self):
         time_limit_ms = 100
-        p1 = StockfishPlayer(name="strong", elo=2000, time_limit_ms=time_limit_ms)
-        p2 = StockfishPlayer(name="weak", elo=1000, time_limit_ms=time_limit_ms)
+        p1 = StockfishPlayer(elo=2000, time_limit_ms=time_limit_ms)
+        p2 = StockfishPlayer(elo=1000, time_limit_ms=time_limit_ms)
 
         game = Game(p1, p2)
         game.play()
         outcome = game.board.outcome()
 
         self.assertEqual(outcome.termination.name, "CHECKMATE")
-        self.assertEqual(game.get_winner().name, "strong", "Strong player should win")
+        self.assertEqual(
+            game.get_winner().name, "stockfish_2000", "Strong player should win"
+        )
 
         game.print_game_time()
 
@@ -30,8 +32,8 @@ class TestGame(TestCase):
 
         for i in range(n_games):
             print(".")
-            p1 = StockfishPlayer(name="strong", elo=1200, time_limit_ms=time_limit_ms)
-            p2 = StockfishPlayer(name="weak", elo=1000, time_limit_ms=time_limit_ms)
+            p1 = StockfishPlayer(elo=1200, time_limit_ms=time_limit_ms)
+            p2 = StockfishPlayer(elo=1000, time_limit_ms=time_limit_ms)
 
             game = Game(p1, p2)
             game.play()

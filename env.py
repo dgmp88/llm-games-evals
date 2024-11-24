@@ -11,10 +11,12 @@ class Env(BaseSettings):
 
     @field_validator("STOCKFISH_PATH")
     @classmethod
-    def check_stockfish_path(cls, v):
+    def check_stockfish_path(cls, v: str) -> str:
         if not Path(v).exists():
             raise ValueError(f"Stockfish path {v} does not exist")
         return v
+
+    OPENAI_API_KEY: str = Field(description="OpenAI API key")
 
 
 env = Env()

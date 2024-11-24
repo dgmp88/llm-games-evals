@@ -19,12 +19,16 @@ class Game:
 
         self.board = chess.Board()
 
-    def play(self):
+    def play(self, max_moves: float | None = None):
         game_start_time = time.perf_counter()
         move_times: list[float] = []
         board = self.board
 
+        move_idx: float = 0  # Half move counter
+
         while not board.is_game_over():
+            if max_moves is not None and move_idx >= max_moves:
+                break
             move_start_time = time.perf_counter()
             if board.turn == chess.WHITE:
                 move = self.white.get_move(board)
@@ -33,6 +37,7 @@ class Game:
             board.push(move)
             move_end_time = time.perf_counter()
             move_times.append(move_end_time - move_start_time)
+            move_idx += 0.5
 
         game_end_time = time.perf_counter()
         self.game_time = game_end_time - game_start_time
