@@ -1,16 +1,15 @@
 import random
 from unittest import TestCase
 
-from game.StockfishPlayer import StockfishPlayer
+from game.players.stockfish_player import StockfishPlayer
 from game.game import Game
-from game.LLMPlayer import LLMPlayer
+from game.players.llm_player import LLMPlayer
 from game.util import pgn_from_board
 
 
 class TestLLM(TestCase):
     def test_model(self):
         model = "gpt-4o-mini-2024-07-18"
-        model = "gpt-4o-2024-08-06"
         llm = LLMPlayer(model)
 
         sf = StockfishPlayer(800)

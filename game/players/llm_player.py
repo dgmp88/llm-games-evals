@@ -1,5 +1,5 @@
 from game.system_prompt import SYSTEM_PROMPT
-from game.types import LLMMessage, Player
+from game.types import LLMMessage, LostByInvalidMoves, Player
 from game.util import display_board_emoji, pgn_from_board
 
 
@@ -40,7 +40,7 @@ class LLMPlayer(Player):
 
             breakpoint()
 
-        raise ValueError(f"Failed to get a valid move after {n_moves} moves")
+        raise LostByInvalidMoves(f"Failed to get a valid move after {n_moves} moves")
 
     def completion(self, messages: list[LLMMessage]) -> str:
         response = completion(

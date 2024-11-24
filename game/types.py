@@ -24,3 +24,11 @@ class Player(ABC):
 
     def get_move(self, board: chess.Board) -> chess.Move:
         raise NotImplementedError()
+
+
+class LostByInvalidMoves(ValueError):
+    """
+    Too many invalid moves were made, we can't keep playing
+    """
+
+    pass

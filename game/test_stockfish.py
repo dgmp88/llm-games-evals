@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from game.game import Game
-from game.StockfishPlayer import StockfishPlayer
+from game.players.stockfish_player import StockfishPlayer
 
 
 class TestGame(TestCase):
