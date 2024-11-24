@@ -1,8 +1,9 @@
 import random
 from unittest import TestCase
 
+from game.StockfishPlayer import StockfishPlayer
 from game.game import Game
-from game.player import LLMPlayer, StockfishPlayer
+from game.LLMPlayer import LLMPlayer
 from game.util import pgn_from_board
 
 

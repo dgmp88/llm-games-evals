@@ -1,45 +1,10 @@
-from abc import ABC
-import time
+from game.system_prompt import SYSTEM_PROMPT
+from game.types import LLMMessage, Player
+from game.util import display_board_emoji, pgn_from_board
+
+
 import chess
 from litellm import completion
-from stockfish import Stockfish
-
-from game.system_prompt import SYSTEM_PROMPT
-from game.types import LLMMessage, LLMModel
-from env import env
-from game.util import pgn_from_board, display_board_emoji
-
-
-class Player(ABC):
-    name: str
-
-    def get_move(self, board: chess.Board) -> chess.Move:
-        raise NotImplementedError()
-
-
-class StockfishPlayer(Player):
-    def __init__(self, elo: int, depth: int = 10, time_limit_ms: int = 100):
-        self.name = f"stockfish_{elo}"
-        self.elo = elo
-        self.time_limit_ms = time_limit_ms
-
-        self.stockfish = Stockfish(path=env.STOCKFISH_PATH)
-        self.stockfish.set_depth(depth)
-        self.stockfish.set_elo_rating(elo)
-        self.sf_thinking_times: list[float] = []
-
-    def get_move(self, board: chess.Board) -> chess.Move:
-        self.stockfish.set_position([move.uci() for move in board.move_stack])
-        t0 = time.perf_counter()
-        result = self.stockfish.get_best_move_time(self.time_limit_ms)
-
-        t1 = time.perf_counter()
-        self.sf_thinking_times.append(t1 - t0)
-
-        if result is None:
-            raise ValueError("Stockfish failed to return a move")
-        move = chess.Move.from_uci(result)
-        return move
 
 
 class LLMPlayer(Player):
@@ -104,7 +69,3 @@ class LLMPlayer(Player):
     def get_user_prompt(self, board: chess.Board) -> LLMMessage:
         moves = pgn_from_board(board)
         return {"content": moves, "role": "user"}
-
-
-if __name__ == "__main__":
-    LLMPlayer.generate_samples_for_system_prompt()

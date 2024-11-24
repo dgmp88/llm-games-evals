@@ -1,5 +1,7 @@
+from abc import ABC
 from typing import Literal
 
+import chess
 from litellm import TypedDict
 
 LLMModel = Literal[
@@ -15,3 +17,10 @@ LLMModel = Literal[
 class LLMMessage(TypedDict):
     content: str
     role: Literal["user", "system", "assistant"]
+
+
+class Player(ABC):
+    name: str
+
+    def get_move(self, board: chess.Board) -> chess.Move:
+        raise NotImplementedError()
