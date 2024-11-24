@@ -40,7 +40,9 @@ class Game:
         move_idx: float = 0  # Half move counter
 
         while not board.is_game_over():
-            print(".", end="")
+
+            dots = "." * int(move_idx * 2)
+            print(dots, end="", flush=True)
             if max_moves is not None and move_idx >= max_moves:
                 return Outcome(
                     termination="too_many_moves",

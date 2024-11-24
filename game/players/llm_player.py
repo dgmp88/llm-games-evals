@@ -8,12 +8,19 @@ from litellm import completion
 
 
 class LLMPlayer(Player):
-    def __init__(self, name: LLMModel, n_attempts: int = 3, debug: bool = False):
+    def __init__(
+        self,
+        name: LLMModel,
+        n_attempts: int = 3,
+        debug: bool = False,
+        insert_board: bool = False,
+    ):
         self.name = name
         self.n_attempts = n_attempts
         self.debug = debug
         self.total_failed_attempts = 0
         self.failed_attempts_per_move: list[int] = []
+        self.insert_board = insert_board
 
     def get_move(self, board: chess.Board) -> chess.Move:
         messages = self.get_prompt_messages(board)
@@ -61,8 +68,13 @@ class LLMPlayer(Player):
         return messages
 
     def get_system_prompt(self, board: chess.Board) -> LLMMessage:
-        emoji_board = get_board_emoji(board)
-        system_prompt = SYSTEM_PROMPT.format(board=emoji_board)
+
+        board_str = ""
+        if self.insert_board:
+            emoji_board = get_board_emoji(board)
+            board_str = "This is the current board state:\n\n" + emoji_board + "\n\n"
+
+        system_prompt = SYSTEM_PROMPT.format(board=board_str)
 
         return {
             "content": system_prompt,

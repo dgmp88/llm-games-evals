@@ -9,13 +9,16 @@ LLMModel = Literal[
     # https://docs.litellm.ai/docs/providers
     # OpenAI
     "gpt-4o-2024-08-06",
-    "gpt-4o-2024-05-13",
+    "gpt-4o-2024-11-20",
     "gpt-4o-mini-2024-07-18",
     "o1-mini",
     "o1-preview",
     # Anthropic
     "claude-3-5-sonnet-20241022",
     "claude-3-5-haiku-20241022",
+    # Google
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
 ]
 
 

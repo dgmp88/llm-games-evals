@@ -20,8 +20,5 @@ Assistant: Qa4+
 ----
 
 Only fill in the * with your move. Do not include move numbers or previous moves in your response.
-
-Here is the current board state:
-
 {board}
 """

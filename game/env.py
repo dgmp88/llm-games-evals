@@ -22,6 +22,7 @@ class Env(BaseSettings):
 
     OPENAI_API_KEY: str = Field(description="OpenAI API key")
     ANTHROPIC_API_KEY: str = Field(description="Anthropic API key")
+    GEMINI_API_KEY: str = Field(description="Gemini API key")
 
 
 env = Env()

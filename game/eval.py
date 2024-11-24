@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+import math
 import pickle
 
 import chess
@@ -23,7 +24,9 @@ class Result:
 
     def save(self):
         now_str = self.timestamp.strftime("%Y-%m-%d_%H-%M-%S")
-        filename = f"result_{self.llm}_vs_stockfish_{self.stockfish_elo}_{now_str}.txt"
+        filename = (
+            f"result_{self.llm}_vs_stockfish_{self.stockfish_elo}_{now_str}.pickle"
+        )
 
         file = env.RESULTS_DIR / filename
 
@@ -32,9 +35,9 @@ class Result:
 
 
 def evaluate(model: LLMModel):
-    for elo in [500, 800, 1000, 1500, 2000, 2500]:
+    for elo in [800, 1000, 1500, 2000, 2500]:
         print(f"Evaluating model {model} against Stockfish {elo}")
-        llm = LLMPlayer(model, debug=True)
+        llm = LLMPlayer(model)
 
         sf = StockfishPlayer(elo)
         game = Game(llm, sf, white=llm)
@@ -59,13 +62,63 @@ def evaluate(model: LLMModel):
             return
 
 
-if __name__ == "__main__":
+def models():
     models: list[LLMModel] = [
         "gpt-4o-mini-2024-07-18",
-        # "gpt-4o-2024-08-06",
-        # "claude-3-5-haiku-20241022",
-        # "claude-3-5-sonnet-20241022",
+        "gpt-4o-2024-08-06",
+        "gpt-4o-2024-11-20",
+        "claude-3-5-haiku-20241022",
+        "claude-3-5-sonnet-20241022",
+        # "gemini-1.5-flash",
+        # "gemini-1.5-pro",
     ]
 
     for model in models:
         evaluate(model)
+
+
+def print_results():
+    import pandas as pd
+
+    folder = env.RESULTS_DIR
+    files = folder.glob("*.pickle")
+    files = list(files)
+    print(f"Found {len(files)} results")
+
+    results: list[Result] = []
+    for file in files:
+        with open(file, "rb") as f:
+            result = pickle.load(f)
+            results.append(result)
+
+    results.sort(key=lambda r: r.timestamp)
+
+    # for result in results:
+    #     print(f"{result.llm} vs Stockfish {result.stockfish_elo}")
+    #     print(f"Winner: {result.outcome.winner_name} in {len(result.moves)} moves")
+
+    df = pd.DataFrame(results)
+    df["n_moves"] = df.moves.apply(lambda m: math.floor(len(m) / 2))
+    df["winner"] = df.outcome.apply(lambda o: o["winner_name"])
+    df["reason"] = df.outcome.apply(lambda o: o["termination"])
+
+    print(
+        df[
+            [
+                "winner",
+                "reason",
+                "white",
+                "black",
+                "n_moves",
+                "time_taken_s",
+                "timestamp",
+            ]
+        ]
+    )
+
+
+if __name__ == "__main__":
+
+    import fire
+
+    fire.Fire({"models": models, "print_results": print_results, "evaluate": evaluate})
