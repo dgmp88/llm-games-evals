@@ -1,4 +1,4 @@
-from game.system_prompt import SYSTEM_PROMPT
+from game.system_prompt import MATHIEU_ACHER_SYSTEM_PROMPT, SYSTEM_PROMPT
 from game.types import LLMMessage, LostByInvalidMoves, Player, LLMModel
 from game.util import get_board_emoji, pgn_from_board
 from litellm import completion
@@ -11,9 +11,10 @@ class LLMPlayer(Player):
     def __init__(
         self,
         name: LLMModel,
-        n_attempts: int = 1,
+        n_attempts: int = 3,
         debug: bool = False,
         board_provided: bool = False,
+        completion_prompt: bool = False,
     ):
         self.name = name
         self.n_attempts = n_attempts
@@ -21,6 +22,10 @@ class LLMPlayer(Player):
         self.total_failed_attempts = 0
         self.failed_attempts_per_move: list[int] = []
         self.board_provided = board_provided
+        self.completion_prompt = completion_prompt
+
+        if completion_prompt and not name.startswith("gpt"):
+            raise ValueError("Completion prompt is only supported for OpenAI models")
 
     def get_move(self, board: chess.Board) -> chess.Move:
         messages = self.get_prompt_messages(board)
@@ -53,7 +58,10 @@ class LLMPlayer(Player):
         raise LostByInvalidMoves(f"Failed to get a valid move after {n_moves} moves")
 
     def completion(self, messages: list[LLMMessage]) -> str:
-        response = completion(model=self.name, messages=messages, max_tokens=10)
+        breakpoint()
+        response = completion(
+            model=self.name, messages=messages, max_tokens=10, temperature=0.001
+        )
         message = response.choices[0].message.content  # type: ignore
 
         if not isinstance(message, str):
@@ -64,22 +72,30 @@ class LLMPlayer(Player):
         return message
 
     def get_prompt_messages(self, board: chess.Board) -> list[LLMMessage]:
-        messages = [self.get_system_prompt(board), self.get_user_prompt(board)]
-        # messages = [self.get_system_prompt(board)]
+        if self.completion_prompt:
+            return [self.get_system_prompt(board)]
+        else:
+            messages = [self.get_system_prompt(board), self.get_user_prompt(board)]
         return messages
 
     def get_system_prompt(self, board: chess.Board) -> LLMMessage:
+        if self.completion_prompt:
+            # Only works with openai models
+            moves = pgn_from_board(board)
+            system_prompt = MATHIEU_ACHER_SYSTEM_PROMPT
+            system_prompt += "\n" + moves[:-1]  # Remove the '*' at the end
+            system_prompt = system_prompt.strip()  # This may be important
+        else:
+            board_str = ""
 
-        board_str = ""
-        if self.board_provided:
-            emoji_board = get_board_emoji(board)
-            board_str = "This is the current board state:\n\n" + emoji_board + "\n\n"
+            if self.board_provided:
+                emoji_board = get_board_emoji(board)
+                board_str = (
+                    "This is the current board state:\n\n" + emoji_board + "\n\n"
+                )
 
-        system_prompt = SYSTEM_PROMPT.format(board=board_str)
+            system_prompt = SYSTEM_PROMPT.format(board=board_str)
 
-        # Only works with openai models
-        # moves = pgn_from_board(board)
-        # system_prompt += "\n" + moves[:-1]
         return {
             "content": system_prompt,
             "role": "system",

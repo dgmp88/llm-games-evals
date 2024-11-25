@@ -39,14 +39,24 @@ class Result:
             pickle.dump(self, f)
 
 
-def evaluate(model: LLMModel, debug: bool = False, board_provided: bool = False):
+def evaluate(
+    model: LLMModel,
+    debug: bool = False,
+    board_provided: bool = False,
+    completion_prompt: bool = False,
+):
 
     print("Board provided: ", board_provided)
 
     for i in range(10):
         for elo in [1500]:
             print(f"Evaluating model {model} against Stockfish {elo}")
-            llm = LLMPlayer(model, debug=debug, board_provided=board_provided)
+            llm = LLMPlayer(
+                model,
+                debug=debug,
+                board_provided=board_provided,
+                completion_prompt=completion_prompt,
+            )
 
             sf = StockfishPlayer(elo)
             game = Game(llm, sf, white=llm)

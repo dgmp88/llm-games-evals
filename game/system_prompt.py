@@ -24,7 +24,7 @@ Only fill in the * with your move. Do not include move numbers or previous moves
 """
 
 
-V2_SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move.
+SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move.
 
 - Any illegal move will result in immediate disqualification.
 - Respond with a single move in Standard Algebraic Notation (SAN)
@@ -71,7 +71,8 @@ Response: Qa4+
 {board}
 """
 
-SYSTEM_PROMPT = """[Event "FIDE World Championship Match 2024"]
+# This prompt: https://blog.mathieuacher.com/GPTsChessEloRatingLegalMoves/
+MATHIEU_ACHER_SYSTEM_PROMPT = """[Event "FIDE World Championship Match 2024"]
 [Site "Los Angeles, USA"]
 [Date "2024.12.01"]
 [Round "5"]
@@ -89,3 +90,8 @@ SYSTEM_PROMPT = """[Event "FIDE World Championship Match 2024"]
 [UTCTime "09:01:25"]
 [Variant "Standard"]
 """
+
+# https://github.com/adamkarvonen/chess_gpt_eval/blob/master/gpt_inputs/prompt.txt
+# Blog posts: https://dynomight.net/chess/
+ADAM_KARVONEN_SYSTEM_PROMPT = """[White "Magnus Carlsen"]
+[Black "Stockfish"]"""
