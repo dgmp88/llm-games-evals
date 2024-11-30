@@ -46,7 +46,7 @@ def evaluate(
     completion_prompt: bool = False,
 ):
 
-    print("Board provided: ", board_provided)
+    print("Board provided: ", board_provided, "Completion prompt: ", completion_prompt)
 
     for i in range(10):
         for elo in [1500]:

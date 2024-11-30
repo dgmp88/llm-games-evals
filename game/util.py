@@ -49,4 +49,7 @@ def pgn_from_board(board: chess.Board) -> str:
         index = n_moves // 2 + 1
         pgn = pgn.replace("*", f"{index}. *")
 
+    pgn = pgn.replace("*", "")
+    pgn = pgn.strip()
+
     return pgn

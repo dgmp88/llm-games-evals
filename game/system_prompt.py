@@ -1,3 +1,6 @@
+from game.types import LLMMessage
+
+
 V1_SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move. Use SAN. Any illegal move will result in immediate disqualification.
 
 Example A:
@@ -24,7 +27,7 @@ Only fill in the * with your move. Do not include move numbers or previous moves
 """
 
 
-SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move.
+V2_SYSTEM_PROMPT = """You are the greatest chess player that has ever been. Make the best possible next move.
 
 - Any illegal move will result in immediate disqualification.
 - Respond with a single move in Standard Algebraic Notation (SAN)
@@ -70,6 +73,22 @@ Response: Qa4+
 
 {board}
 """
+
+V3_SYSTEM_PROMPT = """You are a chess grandmaster.
+You will be given a partially completed game.
+After seeing it, play the best possible move.
+Use Standard Algebraic Notation (SAN). 
+Only respond with the move, not the move number or previous moves.
+"""
+
+EXAMPLES: list[LLMMessage] = [
+    LLMMessage(role="user", content="1."),
+    LLMMessage(role="assistant", content="e4"),
+    LLMMessage(role="user", content="1. e4"),
+    LLMMessage(role="assistant", content="d5"),
+    LLMMessage(role="user", content="1. e4 e5 2. Nf3 Nc6 3."),
+    LLMMessage(role="assistant", content="Bb5"),
+]
 
 # This prompt: https://blog.mathieuacher.com/GPTsChessEloRatingLegalMoves/
 MATHIEU_ACHER_SYSTEM_PROMPT = """[Event "FIDE World Championship Match 2024"]
