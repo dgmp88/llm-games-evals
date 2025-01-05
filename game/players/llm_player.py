@@ -86,7 +86,7 @@ class LLMPlayer(Player):
             if self.include_examples:
                 messages += EXAMPLES
 
-            # messages += [self.get_user_prompt(board)]
+            messages += [self.get_user_prompt(board)]
 
         return messages
 
@@ -96,8 +96,8 @@ class LLMPlayer(Player):
             system_prompt = ADAM_KARVONEN_SYSTEM_PROMPT + "\n" + pgn_from_board(board)
         else:
             board_str = ""
-            system_prompt = ADAM_KARVONEN_SYSTEM_PROMPT
-            # system_prompt = V3_SYSTEM_PROMPT
+            # system_prompt = ADAM_KARVONEN_SYSTEM_PROMPT
+            system_prompt = V3_SYSTEM_PROMPT
             if self.board_provided:
                 emoji_board = get_board_emoji(board)
                 board_str = (

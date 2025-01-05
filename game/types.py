@@ -19,6 +19,7 @@ LLMModel = Literal[
     # Google
     "gemini/gemini-1.5-flash",
     "gemini/gemini-1.5-pro",
+    "gemini/gemini-2.0-flash-exp",
     # Ollama
     "ollama/llama3.1:8b",
     # Together
